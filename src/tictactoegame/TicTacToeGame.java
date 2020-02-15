@@ -19,7 +19,7 @@ public class TicTacToeGame {
     public static void main(String[] args) {
         // TODO code application logic here
         Gameboard view = new Gameboard(); 
-//        view.requestInput();
+        view.requestInput();
         
     }
     

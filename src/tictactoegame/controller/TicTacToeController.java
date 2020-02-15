@@ -63,7 +63,7 @@ public class TicTacToeController {
          * called when there is a bad input
          * @param player 
          */
-        void onBadInput(int player);
+        boolean onBadInput(int player);
         
         /**
          * called when all possible spots are filled
@@ -90,7 +90,7 @@ public class TicTacToeController {
             isSpotAvailable(input);
         }
     }
-    
+
     /**
      * This method checks if there is available spot to play in
      * @param position

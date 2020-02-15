@@ -23,7 +23,7 @@ public class Gameboard implements InnerTicTacController{
     public Gameboard()
     {
         controller=new TicTacToeController(this);
-        requestInput();
+//        requestInput();
         
     }
     
@@ -77,10 +77,11 @@ public class Gameboard implements InnerTicTacController{
 
     
     @Override
-    public void onBadInput(int player) {
+    public boolean onBadInput(int player) {
         System.out.println("The input was incorrect!!!Choose (1 - 9)");
-        requestInput();
-            
+//        requestInput();
+
+        return false;
     }
     
     @Override
