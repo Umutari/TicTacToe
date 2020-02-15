@@ -7,7 +7,6 @@ package tictactoegame.controller;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
-
 import tictactoegame.model.TicTacToeModel;
 import tictactoegame.view.Gameboard;
 
@@ -21,6 +20,7 @@ public class TicTacToeControllerTest {
     TicTacToeController control;
     TicTacToeModel model;
     Gameboard board;
+
     public TicTacToeControllerTest() {
     }
     
