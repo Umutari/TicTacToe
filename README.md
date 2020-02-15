@@ -17,8 +17,8 @@ Screen shots
 - Run the program through the IDE or commandline 
 - Navigate to where you have saved the file: cd ..\..\src>
 - You should have something like c:\Users\...........\src>
-- Compile code: Use `javac tictactoegame/TicTacToe.java`
-- Run code: Use `java tictactoegame/TicTacToe`
+- Compile code: Use `javac tictactoegame/TicTacToeGame.java`
+- Run code: Use `java tictactoegame/TicTacToeGame`
 
 
 # How to use?
