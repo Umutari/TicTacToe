@@ -4,9 +4,10 @@
  * and open the template in the editor.
  */
 package tictactoegame.view;
-import java.util.Scanner;
+
 import tictactoegame.controller.TicTacToeController;
 import tictactoegame.controller.TicTacToeController.InnerTicTacController;
+import java.util.Scanner;
 
 
 /**
@@ -14,9 +15,10 @@ import tictactoegame.controller.TicTacToeController.InnerTicTacController;
  * @author Yvette
  */
 public class Gameboard implements InnerTicTacController{
-    
+
     TicTacToeController controller;
-    Scanner scan =new Scanner(System.in);
+    Scanner scan = new Scanner(System.in);
+
     /**
      * Constructor
      */
@@ -24,12 +26,12 @@ public class Gameboard implements InnerTicTacController{
     {
         controller=new TicTacToeController(this);
 //        requestInput();
-        
+
     }
-    
+
     /**
      * This method prints the board
-     * @param board 
+     * @param board
      */
     public void printBoard(String[][] board)
     {
@@ -44,24 +46,62 @@ public class Gameboard implements InnerTicTacController{
             System.out.println("\n----+---+----");
         }
     }
-    
+
     /**
-     * This method requests input from the Human player
+     * This method requests input from the Human player and validates if the spot is available
      */
     public void requestInput()
     {
         System.out.println("Enter your position from 1 - 9");
-            int placement=scan.nextInt();    
-            controller.validate(placement, this);
+        int placement = scan.nextInt();
+        boolean isValid = controller.validate(placement, this);
+        if (!isValid)
+        {
+            requestInput();
+        }
+        boolean isSpotAvailable = controller.isSpotAvailable(placement);
+        if(!isSpotAvailable)
+        {
+            requestInput();
+        }
+        else {
+            int[] coords = controller.getCoordinates(placement);
+            controller.play(coords[0], coords[1]);
+            int playerId = controller.getPlayer();
+            boolean winnerFound = controller.checkWinner(playerId, controller.getPlayerCharacter(playerId));
+            if (winnerFound)
+            {
+                restart();
+            }
+            else if (controller.isBoardFull() && controller.isTie())
+            {
+                restart();
+            }
+            else {
+                controller.computerPlayer();
+                printBoard(controller.getBoard());
+                winnerFound = controller.checkWinner(2, controller.getPlayerCharacter(2));
+                if (winnerFound)
+                {
+                    restart();
+                }
+                else {
+                    requestInput();
+                }
+            }
+        }
+
     }
-    
+
     public void restart()
     {
         System.out.println("Game Over!!! Restart? Type Y for YES or N for NO");
         String restart;
+        scan = new Scanner(System.in);
         restart = scan.next();
         if(controller.restart(restart))
         {
+            printBoard(controller.getBoard());
             requestInput();
         }
         else
@@ -69,40 +109,38 @@ public class Gameboard implements InnerTicTacController{
             System.out.println("Thanks for playing");
         }
     }
-    
+
     @Override
     public void onBoardReady(String[][]  board) {
         printBoard(board);
     }
 
-    
+
     @Override
     public boolean onBadInput(int player) {
         System.out.println("The input was incorrect!!!Choose (1 - 9)");
-//        requestInput();
-
+        // requestInput();
         return false;
     }
-    
+
     @Override
-    public void onWinnerEmerged(int player, String[][] board) {
+    public boolean onWinnerEmerged(int player, String[][] board) {
         printBoard(board);
         if(player==1)
         {
             System.out.println("Congratulations!! You won!");
-            restart();
         }
         else
         {
             System.out.println("Computer won!");
-            restart();
         }
-        
+//        restart();
+        return true;
     }
 
     @Override
     public void onSpaceTaken(int player) {
-    
+
 //        System.out.println("This spot is taken!! Try a different spot");
         if(player==1)
         {
@@ -116,27 +154,25 @@ public class Gameboard implements InnerTicTacController{
 
     @Override
     public void onNextPlayer(int nextPlayer, String[][] board) {
-    
-        printBoard(board);
+
         if(nextPlayer==1)
         {
             System.out.println("****YOUR TURN****");
-            requestInput();
         }
         else
         {
             System.out.println("****COMPUTER'S TURN****");
             controller.computerPlayer();
         }
+        printBoard(board);
     }
 
     @Override
-    public void onTie(String[][] board) {
+    public boolean onTie(String[][] board) {
         printBoard(board);
         System.out.println("It's a tie, no winner");
-        restart();
+//        restart();
+        return true;
     }
 
-    
-    
 }

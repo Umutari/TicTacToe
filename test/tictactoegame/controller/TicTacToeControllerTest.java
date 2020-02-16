@@ -95,9 +95,9 @@ public class TicTacToeControllerTest {
     @Test
     public void testIsBoardFull() {
         System.out.println("isBoardFull");
-        int playerId = 0;
+        //int playerId = 0;
         boolean expResult = false;
-        boolean result = control.isBoardFull(playerId);
+        boolean result = control.isBoardFull();
         assertEquals(expResult, result);
     }
 

@@ -4,9 +4,11 @@
  * and open the template in the editor.
  */
 package tictactoegame.controller;
-import java.util.Random;
-import tictactoegame.view.Gameboard;
+
 import tictactoegame.model.TicTacToeModel;
+import tictactoegame.view.Gameboard;
+import java.util.Random;
+
 /**
  *
  * @author Yvette
@@ -16,8 +18,8 @@ public class TicTacToeController {
     Gameboard view;
     private int player=1;
     Random ram;
-    
-    
+
+
     /**
      * This is a constructor
      * @param board
@@ -29,7 +31,7 @@ public class TicTacToeController {
         board.onBoardReady(model.getBoard());
         ram=new Random();
     }
-    
+
     public interface InnerTicTacController
     {
         /**
@@ -37,165 +39,200 @@ public class TicTacToeController {
          * @param board
          */
         void onBoardReady(String[][] board);
-        
+
         /**
          * called if a player result is a winner
-         * @param player won on the game 
+         * @param player won on the game
          * @param board
          */
-        void onWinnerEmerged(int player, String[][] board);
-        
+        boolean onWinnerEmerged(int player, String[][] board);
+
         /**
          * called a selected position already has a value
          * The player who just attempted to play needs to play a different spot
-         * @param player 
+         * @param player
          */
         void onSpaceTaken(int player);
-        
+
         /**
          * called when the next player is about to play
-         * @param nextPlayer 
-         * @param board 
+         * @param nextPlayer
+         * @param board
          */
         void onNextPlayer(int nextPlayer, String[][] board);
-        
+
         /**
          * called when there is a bad input
-         * @param player 
+         * @param player
          */
         boolean onBadInput(int player);
-        
+
         /**
          * called when all possible spots are filled
          * There is no winner
          * @param board
          */
-        void onTie(String[][] board);
-        
-    }
-    
-    /**
-     * This method validates user input
-     * @param input
-     * @param board 
-     */
-    public void validate(int input, Gameboard board)
-    {
-        if(input<=0 || input>9)
-        {
-            board.onBadInput(0);
-        }
-        else
-        {
-            isSpotAvailable(input);
-        }
+        boolean onTie(String[][] board);
+
     }
 
     /**
+     * This method return the board
+     * @return
+     */
+    public String[][] getBoard() {
+        return this.model.getBoard();
+    }
+
+    /**
+     * This method validates user input
+     * @param input
+     * @param board
+     */
+    public boolean validate(int input, Gameboard board)
+    {
+        if( input <= 0 || input > 9)
+        {
+            board.onBadInput(0);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * This method get the coordinates or indices of where the player wil be playing
+     * @param position
+     * @return
+     */
+    public int[] getCoordinates(int position) {
+        int[] coord = new int[2];
+        coord[0] = (position-1)/3;
+        coord[1] = (position-1)%3;
+        return coord;
+    }
+    /**
      * This method checks if there is available spot to play in
      * @param position
-     * @return 
+     * @return
      */
     public boolean isSpotAvailable(int position)
     {
-        position=position-1;
-        int x=position/3;
-        int y=(position%3);
-        
-        if(model.getBoard()[x][y].trim().equals(""))
-        {
-            play(x,y);
-            return true; 
+        // check if it's invalid input first here
+        int[] coords = getCoordinates(position);
+        if (model.getBoard()[coords[0]][coords[1]].trim().equals("")) {
+            System.out.println("Spot is available");
+            return true;
         }
-        else
-        {
-            view.onSpaceTaken(player);
-            return false;
-        }
+        return false;
     }
-    
+
+    /**
+     * This method returns the player playing
+     */
+    public int getPlayer() {
+        return player;
+    }
+
+    /**
+     * This method returns the character the player is using (X or O)
+     * @param player
+     * @return
+     */
+    public String getPlayerCharacter(int player) {
+        return player==1?"X":"O";
+    }
+
+    /**
+     * This method assigns the computer to be the second player
+     * @return
+     */
+    public boolean PlayerIsComputer() {
+        return player != 1;
+    }
+
     /**
      * This method allows the player to play
      * @param x
-     * @param y 
+     * @param y
      */
     public void play(int x, int y)
     {
-        String value=player==1?"X":"O";
+        String value = getPlayerCharacter(player);
         model.setBoard(x, y, value);
-        checkWinner(player,value);
     }
-    
+
     /**
      * This method allows the Computer to randomly choose a spot
      */
     public void computerPlayer()
     {
+        player = 2;
         int comp=ram.nextInt(9)+1;
-        isSpotAvailable(comp);
+        if (!isSpotAvailable(comp)) {
+            computerPlayer();
+        }
+        else {
+            int[] coords = getCoordinates(comp);
+            play(coords[0], coords[1]);
+        }
+        player = 1;
     }
-    
+
+    /**
+     * This method is called when checking if there is a tie
+     * @return
+     */
+    public boolean isTie() {
+        return this.view.onTie(model.getBoard());
+    }
+
     /**
      * This method is called when checking for the winner
      * @param playerId
-     * @param playerCharacter 
+     * @param playerCharacter
      */
-    public void checkWinner(int playerId, String playerCharacter)
+    public boolean checkWinner(int playerId, String playerCharacter)
     {
         String[][] board = model.getBoard();
         if(board[0][0].equals(playerCharacter)&&board[0][1].equals(playerCharacter)&&board[0][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player,board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[1][0].equals(playerCharacter)&&board[1][1].equals(playerCharacter)&&board[1][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[2][0].equals(playerCharacter)&&board[2][1].equals(playerCharacter)&&board[2][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
-        else if(board[0][0].equals(playerCharacter)&&board[1][0].equals(playerCharacter)&&board[2][0].equals(playerCharacter))
-        {
-            this.view.onWinnerEmerged(player, board);
+        else if(board[0][0].equals(playerCharacter)&&board[1][0].equals(playerCharacter)&&board[2][0].equals(playerCharacter)) {
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[0][1].equals(playerCharacter)&&board[1][1].equals(playerCharacter)&&board[2][1].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[0][2].equals(playerCharacter)&&board[1][2].equals(playerCharacter)&&board[2][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[0][0].equals(playerCharacter)&&board[1][1].equals(playerCharacter)&&board[2][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
         else if(board[2][0].equals(playerCharacter)&&board[1][1].equals(playerCharacter)&&board[0][2].equals(playerCharacter))
         {
-            this.view.onWinnerEmerged(player, board);
+            return this.view.onWinnerEmerged(playerId, board);
         }
-        else
-        {
-            if(isBoardFull(player))
-            {
-                this.view.onTie(board);
-            }
-            else
-            {
-                player=player==1?2:1;
-                this.view.onNextPlayer(player, board);
-            }
-        }
+        return false;
     }
-    
-    
+
     /**
      * This method checks if the board is full
-     * @param playerId
-     * @return 
+     * @return
      */
-    public boolean isBoardFull(int playerId)
+    public boolean isBoardFull()
     {
         for(int i=0;i<3;i++)
         {
@@ -207,14 +244,14 @@ public class TicTacToeController {
                 }
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * This method is called when the player wants to play again
      * @param restart
-     * @return 
+     * @return
      */
     public boolean restart(String restart)
     {
@@ -228,5 +265,5 @@ public class TicTacToeController {
             return false;
         }
     }
-        
+
 }
